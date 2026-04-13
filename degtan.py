@@ -2,7 +2,7 @@ import telebot
 import requests
 import time
 import os
-import mpmath  # <-- သာမန် math အစား mpmath ကို သုံးပါမည်
+import mpmath
 from datetime import datetime, timedelta, timezone
 
 # ========== CONFIGURATION ========== 
@@ -33,8 +33,8 @@ state = {
     }
 }
 
-# mpmath အတွက် Decimal နေရာ (၄၀) အထိ တွက်ရန် သတ်မှတ်ခြင်း
-mpmath.mp.dps = 40
+# mpmath အတွက် တွက်ချက်မှု တိကျမှုကို နေရာ 60 အထိ သတ်မှတ်သည် (Rounding Error မဖြစ်စေရန်)
+mpmath.mp.dps = 60
 
 # --- ၀။ TIMEZONE UTILS (မြန်မာစံတော်ချိန်အတွက်) ---
 def get_mm_time():
@@ -43,24 +43,24 @@ def get_mm_time():
 # --- ၁။ NEW STRATEGY (HIGH PRECISION TAN DEGREE) ---
 def algo_tan_deg(latest):
     """
-    Block Number ရဲ့ နောက်ဆုံး ၃ လုံးကို ယူပြီး နေရာ ၄၀ အထိ တိကျသော tan (DEG) ဖြင့် တွက်မည်။
+    Block Number ရဲ့ နောက်ဆုံး ၃ လုံးကို ယူပြီး ဖုန်း Calculator နှင့် ထပ်တူကျစေရန်
+    Decimal 41 နေရာအထိ အတိအကျ ဖြတ်ယူတွက်ချက်မည်။
     """
     block_num_str = str(latest.get('blockNumber', '0'))
     
-    # နောက်ဆုံး ၃ လုံးကို ယူသည်
     last_3_str = block_num_str.zfill(3)[-3:]
     val = int(last_3_str)
     
-    # Degree မှ Radian သို့ ပြောင်းသည် (mpmath အသုံးပြု၍)
+    # Degree မှ Radian သို့ ပြောင်းသည်
     rad_val = mpmath.radians(val)
     
     # Tan တန်ဖိုးတွက်သည်
     tan_val = mpmath.tan(rad_val)
     
-    # Absolute value ယူပြီး Decimal 40 နေရာထိ String ပြောင်းသည်
-    tan_str = mpmath.nstr(abs(tan_val), 40)
+    # ဖုန်း Calculator အတိုင်း Decimal 41 နေရာ ကွက်တိရရန် String Format ပြောင်းသည်
+    tan_str = f"{abs(tan_val):.41f}"
     
-    # နောက်က ဂဏန်းအပို '0' များပါလာလျှင် ဖြတ်ထုတ်ရန် (Calculator ပုံစံအတိုင်း)
+    # နောက်က ဂဏန်းအပို '0' များပါလာလျှင် ဖယ်ရှားရန်
     if '.' in tan_str:
         tan_str = tan_str.rstrip('0')
         if tan_str.endswith('.'):
@@ -83,7 +83,6 @@ def get_prediction(history_data):
         
         side, tan_str, last_3, block_num = algo_tan_deg(latest)
         
-        # Message တွင် ပြသရန် Note ဖန်တီးခြင်း
         note = f"tan({last_3}°) = \n<code>{tan_str}</code>\n🍁Lᴀꜱᴛ Dɪɢɪᴛ: <b>[{tan_str[-1]}]</b> -> <b>{side}</b>"
         
         return side, note, block_num
