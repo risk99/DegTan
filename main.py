@@ -6,7 +6,7 @@ import math
 from datetime import datetime, timedelta, timezone
 
 # ========== CONFIGURATION ========== 
-BOT_TOKEN = '8685736939:AAGbzSlibDslZRl6nJEhWkJqk9oBIRtMnjw'
+BOT_TOKEN = '8790969710:AAE--5mRAKZQV5Uz5NSouc34WCG6AZp56Ws'
 CHANNEL_ID = '-1003770494230'
 
 API_URL = "https://draw.ar-lottery01.com/TrxWinGo/TrxWinGo_1M/GetHistoryIssuePage.json"
