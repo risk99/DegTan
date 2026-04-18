@@ -1,1 +1,1 @@
-worker: python degtan.py
+worker: python main.py
